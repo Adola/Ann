@@ -8,6 +8,7 @@ namespace COLORBLOBBING
 {
     // a blob is a list of connected strips
     // this returns a list of blobs.
+
     class blobs 
     {
         public static int[] IDs; public static int idInd = 0;
@@ -22,6 +23,37 @@ namespace COLORBLOBBING
                 bp = strip.printstrip(s, bp);
             }
             return bp;
+        }
+
+        public static List<Point[]> getBlobBoundingRectangles(List<List<strip>> blobs)
+        {
+            // return a list of 2 element point arrays, these have the top left, and bottom right point of the rectangle respectively
+            List<Point[]> lp = new List<Point[]>();
+            Point[] p; int TopLeft = 0; int BottomRight = 1;
+            int tlx, tly, brx, bry; // top left x, top left y...
+
+            // look at each blob
+            foreach (List<strip> ls in blobs)
+            {
+                // look at each strip in the blob to findf the correct bounding rectangle
+                // initialize the points to the first blob
+                tlx = blobs[0][0].left.X;
+                tly = blobs[0][0].left.Y;
+                brx = blobs[0][0].right.X;
+                bry = blobs[0][0].right.Y;
+
+                foreach (strip s in ls)
+                {
+                    if (s.left.X  < tlx) tlx = s.left.X;
+                    if (s.right.X > brx) tlx = s.right.X;
+
+                    if (s.left.Y < tly) tly = s.left.Y;
+                    if (s.left.Y > bry) bry = s.left.Y;
+                }
+                p = new Point[2]; p[TopLeft] = new Point(tlx, tly); p[BottomRight] = new Point(brx, bry);
+                lp.Add(p);
+            }
+            return lp;
         }
 
         public static List<List<strip>> getblobsinit(List<strip> allstrips)
