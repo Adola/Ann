@@ -85,6 +85,17 @@
   <ItemGroup>
     <Compile Include="blob Example.cs" />
     <Compile Include="Controls.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="testcontrols.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="testcontrols.Designer.cs">
+      <DependentUpon>testcontrols.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -99,17 +110,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="testcontrols.resx">
+      <DependentUpon>testcontrols.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="URLForm.resx">
       <DependentUpon>URLForm.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -148,6 +157,33 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\buttonUP.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="buttonD.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="buttonDOWN.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="buttonLEFT.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="buttonRIGHT.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="buttonUP.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="buttonA.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="buttonB.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="buttonC.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

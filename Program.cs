@@ -18,6 +18,11 @@ namespace Player
         static public Graphics g;
         static public Size s;
         static public Rect emuRect;
+        static String EmulatorProcessName;
+        static Process[] processes;
+        static IntPtr ptr;
+        static Process proc;
+
 
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
@@ -41,22 +46,30 @@ namespace Player
             g.CopyFromScreen(emuRect.Left, emuRect.Top, 0, 0, s);
         }
 
+        public static void setActiveScreen()
+        {
+            SetForegroundWindow(proc.MainWindowHandle); // ! DOES NOT WORK IF EMULATOR HAS BEEN MINIMIZED !
+        }
+
         [STAThread]
         static void Main( )
         {
-            String EmulatorProcessName = "Jnes";
-            Process[] processes = Process.GetProcessesByName(EmulatorProcessName);
-            Process proc = processes[0];
-            IntPtr ptr = proc.MainWindowHandle;
+            // initialize some variables
+            EmulatorProcessName = "Jnes";
+            processes = Process.GetProcessesByName(EmulatorProcessName);
+            proc = processes[0];
+            ptr = proc.MainWindowHandle;
             emuRect = new Rect();
             GetWindowRect(ptr, ref emuRect);
             s = new Size(emuRect.Right-emuRect.Left + 1, emuRect.Bottom - emuRect.Top + 1);
-            SetForegroundWindow(proc.MainWindowHandle); // ! DOES NOT WORK IF EMULATOR HAS BEEN MINIMIZED !
+            // set the active screen to the emulator
+            setActiveScreen();
 
-            Form tc = new testcontrols();
-            tc.Visible = true;
             Application.EnableVisualStyles( );
             Application.SetCompatibleTextRenderingDefault( false );
+
+            Form tc = new testcontrols(); tc.Visible = true;
+
             Application.Run( new MainForm( ) );
 
         }

@@ -10,15 +10,25 @@ namespace Player
 {
     public partial class testcontrols : Form
     {
+        private Controls cs;
+
         public testcontrols()
         {
             InitializeComponent();
-            this.BackgroundImage = Image.FromFile("buttonUP.png"); 
+            cs = new Controls();
+            
+        }
+        
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Program.setActiveScreen();
+            cs.useKey((byte)0x57, int.Parse(this.DurationTextBox.Text));
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void testcontrols_Load(object sender, EventArgs e)
         {
 
         }
+
     }
 }
