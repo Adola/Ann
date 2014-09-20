@@ -41,20 +41,26 @@ namespace Player
 
         public static void updateScreenshot()
         {
+            //setActiveScreen();
+            //Console.Out.WriteLine(emuRect.Left + " "  + emuRect.Right + " "  + emuRect.Top + " "  + emuRect.Bottom + " ");
             screenBMP = new Bitmap(emuRect.Right - emuRect.Left + 1, emuRect.Bottom - emuRect.Top + 1);
             g = Graphics.FromImage(screenBMP);
-            g.CopyFromScreen(emuRect.Left, emuRect.Top, 0, 0, s);
+            s = new Size(emuRect.Right - emuRect.Left + 1, emuRect.Bottom - emuRect.Top + 1);
+            s.Width -= 9; s.Height -= (6+14);
+            g.CopyFromScreen(emuRect.Left +8, emuRect.Top +30, 0, 0, s);
         }
 
         public static void setActiveScreen()
         {
             SetForegroundWindow(proc.MainWindowHandle); // ! DOES NOT WORK IF EMULATOR HAS BEEN MINIMIZED !
+            GetWindowRect(ptr, ref emuRect);
         }
 
         [STAThread]
         static void Main( )
         {
             // initialize some variables
+            
             EmulatorProcessName = "Jnes";
             processes = Process.GetProcessesByName(EmulatorProcessName);
             proc = processes[0];
@@ -68,10 +74,10 @@ namespace Player
             Application.EnableVisualStyles( );
             Application.SetCompatibleTextRenderingDefault( false );
 
-            Form tc = new testcontrols(); tc.Visible = true;
+            //Form tc = new testcontrols(); tc.Visible = true;
+            //Form vb = new viewBlobs(); vb.Visible = true;
 
             Application.Run( new MainForm( ) );
-
         }
     }
 }

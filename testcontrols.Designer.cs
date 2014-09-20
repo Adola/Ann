@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(testcontrols));
             this.UPbutton = new System.Windows.Forms.Button();
             this.DurationTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -36,7 +37,7 @@
             // UPbutton
             // 
             this.UPbutton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.UPbutton.Image = global::Player.Properties.Resources.buttonUP;
+            this.UPbutton.Image = ((System.Drawing.Image)(resources.GetObject("UPbutton.Image")));
             this.UPbutton.Location = new System.Drawing.Point(46, 22);
             this.UPbutton.Name = "UPbutton";
             this.UPbutton.Size = new System.Drawing.Size(52, 53);
@@ -68,7 +69,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(313, 262);
+            this.ClientSize = new System.Drawing.Size(214, 302);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.DurationTextBox);
             this.Controls.Add(this.UPbutton);

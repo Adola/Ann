@@ -104,6 +104,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="viewBlobs.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="viewBlobs.Designer.cs">
+      <DependentUpon>viewBlobs.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -118,6 +124,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="URLForm.resx">
       <DependentUpon>URLForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="viewBlobs.resx">
+      <DependentUpon>viewBlobs.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

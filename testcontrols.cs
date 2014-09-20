@@ -16,7 +16,6 @@ namespace Player
         {
             InitializeComponent();
             cs = new Controls();
-            
         }
         
         private void button1_Click(object sender, EventArgs e)
