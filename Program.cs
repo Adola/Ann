@@ -78,6 +78,23 @@ namespace Player
             //Form vb = new viewBlobs(); vb.Visible = true;
 
             Application.Run( new MainForm( ) );
+             
+
+            /* test code for the new blobs algorithm 
+            Console.Out.WriteLine("vv^^vv^^vv^^vv^^vv^^vv^^vv^^vv^^vv^^vv^^vv^^vv^^");
+            Bitmap bp = new Bitmap("C:\\Users\\Chris\\Downloads\\jnes_1_1_1\\screenshots\\mario.bmp");
+            Stopwatch sw = new Stopwatch(); sw.Start();
+            List<stripv2> strips = blobfinder.getstripsv2(bp);
+            sw.Stop();
+            Console.Out.WriteLine("took " + sw.ElapsedMilliseconds);
+            
+            foreach (stripv2 sv2 in strips)
+            {
+                Console.Out.WriteLine("color: " + sv2.c + " left: " + sv2.left.X + " right: " + sv2.right.X + " Y: " + sv2.left.Y);
+            }
+             
+            Console.Out.WriteLine("Total number of strips: "  + strips.Count);
+             */
         }
     }
 }
