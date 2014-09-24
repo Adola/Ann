@@ -22,6 +22,7 @@ namespace Player
         static Process[] processes;
         static IntPtr ptr;
         static Process proc;
+        public static bool usingpic;
 
 
         [DllImport("user32.dll")]
@@ -71,11 +72,12 @@ namespace Player
             // set the active screen to the emulator
             setActiveScreen();
 
+
             Application.EnableVisualStyles( );
             Application.SetCompatibleTextRenderingDefault( false );
 
             //Form tc = new testcontrols(); tc.Visible = true;
-            //Form vb = new viewBlobs(); vb.Visible = true;
+            Form vb = new viewBlobs(); vb.Visible = true;
 
             Application.Run( new MainForm( ) );
              

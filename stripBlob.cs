@@ -4,253 +4,255 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Text;
 
-
-class stripv2
+namespace Player
 {
-    public Point left;
-    public Point right;
-    public Color c;
-    public stripv2 parent;
-    //public List<Point> connectedBelow;
-    public List<Point> connectedBelow;
-    public int id;
-
-    public stripv2()
+    class stripv2
     {
-        left = new Point();
-        right = new Point();
-        connectedBelow = new List<Point>();
-        parent = null;
-    }
-}
+        public Point left;
+        public Point right;
+        public Color c;
+        public stripv2 parent;
+        //public List<Point> connectedBelow;
+        public List<Point> connectedBelow;
+        public int id;
 
-/*
-class smallBlobFinder
-{
-
-
-}
-*/
-
-class blobfinder
-{
-    public static List<Rectangle> getBlobBoundingRectangles(List<List<stripv2>> blobs)
-    {
-        // return a list of 2 element point arrays, these have the top left, and bottom right point of the rectangle respectively
-        List<Rectangle> rl = new List<Rectangle>();
-        int tlx, tly, brx, bry; // top left x, top left y...
-
-        // look at each blob
-        foreach (List<stripv2> ls in blobs)
+        public stripv2()
         {
-            // look at each strip in the blob to findf the correct bounding rectangle
-            // initialize the points to the first blob
-            tlx = blobs[0][0].left.X;
-            tly = blobs[0][0].left.Y;
-            brx = blobs[0][0].right.X;
-            bry = blobs[0][0].right.Y;
-
-            foreach (stripv2 s in ls)
-            {
-                if (s.left.X < tlx) tlx = s.left.X;
-                if (s.right.X > brx) tlx = s.right.X;
-
-                if (s.left.Y < tly) tly = s.left.Y;
-                if (s.left.Y > bry) bry = s.left.Y;
-            }
-            Rectangle r = new Rectangle(tlx, tly, (brx - tlx), (bry - tly));
-            rl.Add(r);
+            left = new Point();
+            right = new Point();
+            connectedBelow = new List<Point>();
+            parent = null;
         }
-        return rl;
     }
 
-    
-    static public Bitmap printstrip(stripv2 s, Bitmap bp) // prints to the bitmap
+    /*
+    class smallBlobFinder
     {
-        for (int x = s.left.X; x <= s.right.X; x++) { bp.SetPixel(x, s.left.Y, s.c); }
-        return bp;
+
+
     }
-    public static List<List<stripv2>> getstripsv2(Bitmap bp)
+    */
+
+    class blobfinder
     {
-        List<stripv2> strips = new List<stripv2>();
-        stripv2[,] striparray = new stripv2[bp.Width, bp.Height];
-        int curid = 0;
-        Color curpx;
-        bool canbenewstrip = true;
-
-        //Stopwatch sw = new Stopwatch(); sw.Start();
-
-        for (int y = 0; y < bp.Height; y++)
+        public static List<Rectangle> getBlobBoundingRectangles(List<List<stripv2>> blobs)
         {
-            // set up the first strip
-            stripv2 s= new stripv2();
-            s.c = bp.GetPixel(0, y);
-            s.left = new Point(0, y);
-            s.id = curid; curid++;
-            canbenewstrip = true;
-            for (int x = 0; x < bp.Width; x++)
+            // return a list of 2 element point arrays, these have the top left, and bottom right point of the rectangle respectively
+            List<Rectangle> rl = new List<Rectangle>();
+            int tlx, tly, brx, bry; // top left x, top left y...
+
+            // look at each blob
+            foreach (List<stripv2> ls in blobs)
             {
-                curpx = bp.GetPixel(x, y);
-                if (curpx != s.c) // reached a different color close the strip
+                // look at each strip in the blob to findf the correct bounding rectangle
+                // initialize the points to the first blob
+                tlx = blobs[0][0].left.X;
+                tly = blobs[0][0].left.Y;
+                brx = blobs[0][0].right.X;
+                bry = blobs[0][0].right.Y;
+
+                foreach (stripv2 s in ls)
                 {
-                    s.right = new Point(x - 1, y); // add the rightmost point, prev pixel
-                    strips.Add(s);
+                    if (s.left.X < tlx) tlx = s.left.X;
+                    if (s.right.X > brx) tlx = s.right.X;
 
-                    // put it in the array
-                    for(int i = s.left.X; i <= s.right.X; i++) striparray[i, y] = s;
-
-                    // set up the next strip
-                    canbenewstrip = true;
-                    s = new stripv2();
-                    s.id = curid; curid++;
-                    s.left = new Point(x, y);
-                    s.c = curpx;
+                    if (s.left.Y < tly) tly = s.left.Y;
+                    if (s.left.Y > bry) bry = s.left.Y;
                 }
+                Rectangle r = new Rectangle(tlx, tly, (brx - tlx), (bry - tly));
+                rl.Add(r);
+            }
+            return rl;
+        }
 
 
-                //Console.Out.WriteLine("\nx " + x + " y " + y + " can be new " + canbenewstrip);
-                // connected below?
-                if (y < bp.Height - 1 && bp.GetPixel(x, y + 1) == s.c)
+        static public Bitmap printstrip(stripv2 s, Bitmap bp) // prints to the bitmap
+        {
+            for (int x = s.left.X; x <= s.right.X; x++) { bp.SetPixel(x, s.left.Y, s.c); }
+            return bp;
+        }
+        public static List<List<stripv2>> getstripsv2(Bitmap bp)
+        {
+            List<stripv2> strips = new List<stripv2>();
+            stripv2[,] striparray = new stripv2[bp.Width, bp.Height];
+            int curid = 0;
+            Color curpx;
+            bool canbenewstrip = true;
+
+            //Stopwatch sw = new Stopwatch(); sw.Start();
+
+            for (int y = 0; y < bp.Height; y++)
+            {
+                // set up the first strip
+                stripv2 s = new stripv2();
+                s.c = bp.GetPixel(0, y);
+                s.left = new Point(0, y);
+                s.id = curid; curid++;
+                canbenewstrip = true;
+                for (int x = 0; x < bp.Width; x++)
                 {
-                    if (canbenewstrip)
+                    curpx = bp.GetPixel(x, y);
+                    if (curpx != s.c) // reached a different color close the strip
                     {
-                        //Console.Out.WriteLine("added x " + x + " y " + (y + 1));
-                        s.connectedBelow.Add(new Point(x, y + 1));
-                        canbenewstrip = false;
+                        s.right = new Point(x - 1, y); // add the rightmost point, prev pixel
+                        strips.Add(s);
+
+                        // put it in the array
+                        for (int i = s.left.X; i <= s.right.X; i++) striparray[i, y] = s;
+
+                        // set up the next strip
+                        canbenewstrip = true;
+                        s = new stripv2();
+                        s.id = curid; curid++;
+                        s.left = new Point(x, y);
+                        s.c = curpx;
                     }
-                }
-                else
-                    canbenewstrip = true;
 
-            }
-            // end last strip
-            s.right = new Point(bp.Width - 1, y); // add the rightmost point, prev pixel
-            strips.Add(s); // add the strip to the list
-            for (int i = s.left.X; i <= s.right.X; i++) striparray[i, y] = s;
-        }
 
-        /*
-        sw.Stop();
-        Console.Out.WriteLine("--------------------------first part take " + sw.ElapsedMilliseconds);
-        sw.Reset();
-        */
-
-        // try to build a blob
-        // grab the first one
-
-        //List<stripv2> blobstrips = new List<stripv2>(); blobstrips.AddRange(strips);
-
-        int[] strarr = new int[strips.Count];
-        int strarrind = 0;
-        int last = 0;
-
-        List<stripv2> curlist = new List<stripv2>();
-        List<stripv2> curlistsub = new List<stripv2>();
-
-        stripv2 par = new stripv2();
-        stripv2 cur = new stripv2();
-        bool done = false;
-
-        //sw.Start();
-
-        while (true)
-        {
-            //par = strips[0]; 
-            strarrind = last;
-            while (strarrind < strarr.Length && strarr[strarrind] == -1) strarrind++;
-
-            if (strarrind == strarr.Length) break; //d done
-
-            par = strips[strarrind];
-            last = strarrind;
-
-            par.parent = par; 
-
-            //strips.RemoveAt(0);
-            strarr[strarrind] = -1;
-
-            curlist.Add(par);
-            done = false;
-            while (!done)
-            {
-                //Console.Out.WriteLine(curlist.Count);
-                if (curlist.Count == 0)
-                    done = true;
-
-                curlistsub.Clear();
-
-                foreach (stripv2 cs in curlist)
-                {
-                    //Console.Out.WriteLine("strip id " + cs.id);
-                    foreach (Point cb in cs.connectedBelow)
+                    //Console.Out.WriteLine("\nx " + x + " y " + y + " can be new " + canbenewstrip);
+                    // connected below?
+                    if (y < bp.Height - 1 && bp.GetPixel(x, y + 1) == s.c)
                     {
-
-                        cur = striparray[cb.X, cb.Y];
-
-                        if (cur.parent == null)
+                        if (canbenewstrip)
                         {
-                            cur.parent = par;
-                            curlistsub.Add(cur);
+                            //Console.Out.WriteLine("added x " + x + " y " + (y + 1));
+                            s.connectedBelow.Add(new Point(x, y + 1));
+                            canbenewstrip = false;
                         }
-                        else
-                        {
-                            par.parent = cur.parent;
-                        }
-
                     }
+                    else
+                        canbenewstrip = true;
+
                 }
-                curlist.Clear();
-                curlist.AddRange(curlistsub);
-
-                foreach (stripv2 r in curlist) strarr[r.id] = -1;
+                // end last strip
+                s.right = new Point(bp.Width - 1, y); // add the rightmost point, prev pixel
+                strips.Add(s); // add the strip to the list
+                for (int i = s.left.X; i <= s.right.X; i++) striparray[i, y] = s;
             }
-        }
 
-        /*
-        sw.Stop();
-        Console.Out.WriteLine("--------------------------second part part take " + sw.ElapsedMilliseconds);
-        sw.Reset();
-        */
+            /*
+            sw.Stop();
+            Console.Out.WriteLine("--------------------------first part take " + sw.ElapsedMilliseconds);
+            sw.Reset();
+            */
 
+            // try to build a blob
+            // grab the first one
 
-        int blobnum = 1; // start at 1 so 0 can represent that the elements of the lookup table have not been set.
-        int[] lookuptable = new int[strips.Count + 1];
-        
-        //sw.Start();
+            //List<stripv2> blobstrips = new List<stripv2>(); blobstrips.AddRange(strips);
 
-        foreach (stripv2 sv2 in strips)
-        {
-            sv2.parent = sv2.parent.parent;
-            if (lookuptable[sv2.parent.id] == 0)
+            int[] strarr = new int[strips.Count];
+            int strarrind = 0;
+            int last = 0;
+
+            List<stripv2> curlist = new List<stripv2>();
+            List<stripv2> curlistsub = new List<stripv2>();
+
+            stripv2 par = new stripv2();
+            stripv2 cur = new stripv2();
+            bool done = false;
+
+            //sw.Start();
+
+            while (true)
             {
-                lookuptable[sv2.parent.id] = blobnum;
-                blobnum++;
+                //par = strips[0]; 
+                strarrind = last;
+                while (strarrind < strarr.Length && strarr[strarrind] == -1) strarrind++;
+
+                if (strarrind == strarr.Length) break; //d done
+
+                par = strips[strarrind];
+                last = strarrind;
+
+                par.parent = par;
+
+                //strips.RemoveAt(0);
+                strarr[strarrind] = -1;
+
+                curlist.Add(par);
+                done = false;
+                while (!done)
+                {
+                    //Console.Out.WriteLine(curlist.Count);
+                    if (curlist.Count == 0)
+                        done = true;
+
+                    curlistsub.Clear();
+
+                    foreach (stripv2 cs in curlist)
+                    {
+                        //Console.Out.WriteLine("strip id " + cs.id);
+                        foreach (Point cb in cs.connectedBelow)
+                        {
+
+                            cur = striparray[cb.X, cb.Y];
+
+                            if (cur.parent == null)
+                            {
+                                cur.parent = par;
+                                curlistsub.Add(cur);
+                            }
+                            else
+                            {
+                                par.parent = cur.parent;
+                            }
+
+                        }
+                    }
+                    curlist.Clear();
+                    curlist.AddRange(curlistsub);
+
+                    foreach (stripv2 r in curlist) strarr[r.id] = -1;
+                }
             }
+
+            /*
+            sw.Stop();
+            Console.Out.WriteLine("--------------------------second part part take " + sw.ElapsedMilliseconds);
+            sw.Reset();
+            */
+
+
+            int blobnum = 1; // start at 1 so 0 can represent that the elements of the lookup table have not been set.
+            int[] lookuptable = new int[strips.Count + 1];
+
+            //sw.Start();
+
+            foreach (stripv2 sv2 in strips)
+            {
+                sv2.parent = sv2.parent.parent;
+                if (lookuptable[sv2.parent.id] == 0)
+                {
+                    lookuptable[sv2.parent.id] = blobnum;
+                    blobnum++;
+                }
+            }
+
+            /*
+            sw.Stop();
+            Console.Out.WriteLine("--------------------------third part take " + sw.ElapsedMilliseconds);
+            sw.Reset();
+
+            sw.Start();
+            */
+
+            List<List<stripv2>> blobs = new List<List<stripv2>>();
+            while (blobs.Count < blobnum - 1) blobs.Add(new List<stripv2>());
+
+            foreach (stripv2 sv2 in strips)
+            {
+                blobs[lookuptable[sv2.parent.id] - 1].Add(sv2);
+            }
+
+            /*
+            sw.Stop();
+            Console.Out.WriteLine("--------------------------fourth part take " + sw.ElapsedMilliseconds);
+            sw.Reset();
+            */
+
+            return blobs;
         }
-
-        /*
-        sw.Stop();
-        Console.Out.WriteLine("--------------------------third part take " + sw.ElapsedMilliseconds);
-        sw.Reset();
-
-        sw.Start();
-        */ 
-
-        List<List<stripv2>> blobs = new List<List<stripv2>>();
-        while( blobs.Count < blobnum -1 ) blobs.Add(new List<stripv2>());
-       
-        foreach (stripv2 sv2 in strips)
-        {
-            blobs[ lookuptable[sv2.parent.id] -1 ].Add(sv2);
-        }
-        
-        /*
-        sw.Stop();
-        Console.Out.WriteLine("--------------------------fourth part take " + sw.ElapsedMilliseconds);
-        sw.Reset();
-        */
-
-        return blobs;
     }
 }
 
