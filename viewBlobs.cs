@@ -38,6 +38,8 @@ namespace Player
         {
             sw.Reset(); sw.Start();
             Program.updateScreenshot();
+            //What is a 'strip'?  
+            
             List<strip> strips = strip.getstrips(Program.screenBMP);
             //List<strip> strips = strip.getstrips(new Bitmap("C:\\Users\\Chris\\Downloads\\jnes_1_1_1\\screenshots\\mario.bmp"));
             //List<List<strip>> allblobs = blobs.getblobsinit(strips);
