@@ -261,23 +261,23 @@ namespace Player
             EuclideanColorFiltering filter = new EuclideanColorFiltering();
             // set center colol and radius
             RGB tempColor = new RGB();
-            tempColor.Red = 240;
-            tempColor.Green = 134;
-            tempColor.Blue = 61;
+            /*
+            tempColor.Red = 255;
+            tempColor.Green = 225;
+            tempColor.Blue = 195;
 
             filter.CenterColor = tempColor; 
             filter.Radius = 10;
             // apply the filter
             filter.ApplyInPlace(image);
-
-
+            */
             // set center colol and radius
-            tempColor.Red = 206;
-            tempColor.Green = 94;
-            tempColor.Blue = 22;
+            tempColor.Red = 255;
+            tempColor.Green = 225;
+            tempColor.Blue = 195;
 
             filter.CenterColor = tempColor;
-            filter.Radius = 100;
+            filter.Radius = 0;
             // apply the filter
             filter.ApplyInPlace(image);
 
@@ -327,24 +327,25 @@ namespace Player
             //}
 
 
-            blobCounter.MinWidth = 5;
-            blobCounter.MinHeight = 5;
+            blobCounter.MinWidth = 2;
+            blobCounter.MinHeight = 2;
             blobCounter.FilterBlobs = true;
             blobCounter.ObjectsOrder = ObjectsOrder.Size;
             blobCounter.ProcessImage(grayImage);
             Rectangle[] rects = blobCounter.GetObjectsRectangles();
             foreach (Rectangle recs in rects)
-                if (rects.Length > 0)
+            {
+                Rectangle r = Program.mariogo.keyblobInrect(image, recs);
+                if (r.Left != -1) // -1 when it wasn't found
                 {
-                    Rectangle objectRect = rects[0];
                     Graphics g = Graphics.FromImage(image);
-                    using (Pen pen = new Pen(Color.FromArgb(160, 255, 160), 5))
+                    using (Pen pen = new Pen(Color.FromArgb(160, 255, 160), 2))
                     {
-                        g.DrawRectangle(pen, objectRect);
+                        g.DrawRectangle(pen, r);
                     }
                     g.Dispose();
                 }
-
+            }
         }
 
         private void processBlobs(System.Drawing.Bitmap image)

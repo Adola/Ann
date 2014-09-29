@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace Player
 {
-    static class Program
+    class Program
     {
         /// <summary>
         /// The main entry point for the application.
@@ -23,6 +24,8 @@ namespace Player
         static IntPtr ptr;
         static Process proc;
         public static bool usingpic;
+        public static int plusleft, plusright, plustop, plusbottom;
+        public static gameObject mariogo;
 
 
         [DllImport("user32.dll")]
@@ -43,12 +46,17 @@ namespace Player
         public static void updateScreenshot()
         {
             //setActiveScreen();
-            //Console.Out.WriteLine(emuRect.Left + " "  + emuRect.Right + " "  + emuRect.Top + " "  + emuRect.Bottom + " ");
+            
+            usingpic = true;
             screenBMP = new Bitmap(emuRect.Right - emuRect.Left + 1, emuRect.Bottom - emuRect.Top + 1);
             g = Graphics.FromImage(screenBMP);
             s = new Size(emuRect.Right - emuRect.Left + 1, emuRect.Bottom - emuRect.Top + 1);
-            s.Width -= 9; s.Height -= (6+14);
-            g.CopyFromScreen(emuRect.Left +8, emuRect.Top +30, 0, 0, s);
+            //Stopwatch sw = new Stopwatch(); sw.Start();
+            g.CopyFromScreen(emuRect.Left, emuRect.Top, 0, 0, s);
+            //sw.Stop();
+            //Console.Out.WriteLine("took " + sw.ElapsedMilliseconds);
+            usingpic = false;
+             
         }
 
         public static void setActiveScreen()
@@ -58,8 +66,12 @@ namespace Player
         }
 
         [STAThread]
-        static void Main( )
+        static void Main()
         {
+
+            Bitmap mario = Player.Properties.Resources.mariosmall;
+            mariogo = new gameObject(mario, mario.GetPixel(0, 0));
+
             // initialize some variables
             
             EmulatorProcessName = "Jnes";
@@ -68,35 +80,19 @@ namespace Player
             ptr = proc.MainWindowHandle;
             emuRect = new Rect();
             GetWindowRect(ptr, ref emuRect);
-            s = new Size(emuRect.Right-emuRect.Left + 1, emuRect.Bottom - emuRect.Top + 1);
             // set the active screen to the emulator
             setActiveScreen();
-
 
             Application.EnableVisualStyles( );
             Application.SetCompatibleTextRenderingDefault( false );
 
             //Form tc = new testcontrols(); tc.Visible = true;
-            Form vb = new viewBlobs(); vb.Visible = true;
+            //Form vb = new viewBlobs(); vb.Visible = true;
 
-            Application.Run( new MainForm( ) );
-             
-
-            /* test code for the new blobs algorithm 
-            Console.Out.WriteLine("vv^^vv^^vv^^vv^^vv^^vv^^vv^^vv^^vv^^vv^^vv^^vv^^");
-            Bitmap bp = new Bitmap("C:\\Users\\Chris\\Downloads\\jnes_1_1_1\\screenshots\\mario.bmp");
-            Stopwatch sw = new Stopwatch(); sw.Start();
-            List<stripv2> strips = blobfinder.getstripsv2(bp);
-            sw.Stop();
-            Console.Out.WriteLine("took " + sw.ElapsedMilliseconds);
+            Application.Run(new MainForm());
             
-            foreach (stripv2 sv2 in strips)
-            {
-                Console.Out.WriteLine("color: " + sv2.c + " left: " + sv2.left.X + " right: " + sv2.right.X + " Y: " + sv2.left.Y);
-            }
+
              
-            Console.Out.WriteLine("Total number of strips: "  + strips.Count);
-             */
         }
     }
 }
