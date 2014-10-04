@@ -326,26 +326,21 @@ namespace Player
             //    }
             //}
 
-
+            
             blobCounter.MinWidth = 2;
             blobCounter.MinHeight = 2;
             blobCounter.FilterBlobs = true;
             blobCounter.ObjectsOrder = ObjectsOrder.Size;
             blobCounter.ProcessImage(grayImage);
             Rectangle[] rects = blobCounter.GetObjectsRectangles();
-            foreach (Rectangle recs in rects)
-            {
-                Rectangle r = Program.mariogo.keyblobInrect(image, recs);
-                if (r.Left != -1) // -1 when it wasn't found
-                {
+            
                     Graphics g = Graphics.FromImage(image);
-                    using (Pen pen = new Pen(Color.FromArgb(160, 255, 160), 2))
+                    using (Pen pen = new Pen(Color.FromArgb(0, 255, 50), 2))
                     {
-                        g.DrawRectangle(pen, r);
+                        g.DrawRectangle(pen, rects[0]);
                     }
                     g.Dispose();
-                }
-            }
+                
         }
 
         private void processBlobs(System.Drawing.Bitmap image)

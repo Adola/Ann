@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Player
 {
-    class stripv2
+    public class stripv2
     {
         public Point left;
         public Point right;
@@ -25,7 +28,7 @@ namespace Player
         }
     }
 
-    class blobv2
+    public class blobv2
     {
         public List<stripv2> strips;
         public stripv2 parent;
@@ -40,9 +43,130 @@ namespace Player
         }
     }
 
-    class stripBlob
+    public class stripBlob
     {
         const int bigP = 7907;
+        private const int SRCCOPY = 0xCC0020;
+
+        [DllImport("gdi32.dll", EntryPoint = "BitBlt")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool BitBlt(
+            [In()] System.IntPtr hdc, int x, int y, int cx, int cy,
+            [In()] System.IntPtr hdcSrc, int x1, int y1, uint rop);
+
+        public static void Getscreen(Graphics g, int w, int h, int x, int y)
+        {
+            g.CopyFromScreen(x, y, 0, 0, new Size(w, h));
+        }
+
+        public static void copyGraphics(Bitmap source, Bitmap dest, int w, int h)
+        {
+            Graphics d = Graphics.FromImage(dest);
+            d.DrawImage(source, 0, 0);
+        }
+
+        public static List<stripv2> getUnconnectedStrips(Bitmap bp) // speedier version used for creating strips to search through rather than for distinguishing blobs
+        {
+            Color[,] carr = getAllPixels(bp);
+
+
+            List<stripv2> strips = new List<stripv2>();
+            stripv2 s = new stripv2();
+
+            for (int y = 0; y < bp.Height; y++)
+            {
+                // start first strips
+                s = new stripv2(); s.left.Y = y; s.left.X = 0; s.c = carr[0, y]; s.id = strips.Count;
+                for (int x = 0; x < bp.Width; x++)
+                {
+                    // color change for current strip? end strip
+                    if (s.c != carr[x, y])
+                    {
+                        s.right.X = x - 1; // last pixel of current strip was previous x value
+                        s.right.Y = y;
+                        strips.Add(s);
+                        // set up next strip
+                        s = new stripv2(); s.left.Y = y; s.left.X = x; s.c = carr[x, y]; s.id = strips.Count;
+                    }
+                }
+                // close last strips
+                s.right.X = bp.Width - 1; // last pixel of current strip was previous x value 
+                s.right.Y = y;
+                s.id = strips.Count;
+                strips.Add(s);
+            }
+
+            return strips;
+        }
+
+        public unsafe static Color[,] getAllPixels(Bitmap b)
+        {
+            Color[,] carr = new Color[b.Width, b.Height];
+            BitmapData bData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height), ImageLockMode.ReadWrite, b.PixelFormat);
+            byte bitsPerPixel = GetBitsPerPixel(b.PixelFormat);
+            int size = bData.Stride * bData.Height;
+            byte* scan0 = (byte*)bData.Scan0.ToPointer();
+            int colWidth = bData.Width * bitsPerPixel / 8;
+
+            for (int i = 0; i < bData.Height; ++i)
+            {
+                for (int j = 0; j < bData.Width; ++j)
+                {
+                    byte* data = scan0 + i * bData.Stride + j * bitsPerPixel / 8;
+                    carr[j, i] = Color.FromArgb(255, data[2], data[1], data[0]);
+                }
+            }
+            b.UnlockBits(bData);
+
+            return carr;
+        }
+
+        public unsafe static Color[,] getRectPixels(Bitmap b, Rectangle rect)
+        {
+            Color[,] carr = new Color[b.Width, b.Height];
+            BitmapData bData = b.LockBits(rect, ImageLockMode.ReadWrite, b.PixelFormat);
+            byte bitsPerPixel = GetBitsPerPixel(b.PixelFormat);
+            int size = bData.Stride * bData.Height;
+            byte* scan0 = (byte*)bData.Scan0.ToPointer();
+            int colWidth = bData.Width * bitsPerPixel / 8;
+
+            //Console.Out.WriteLine("width height " + bData.Width + " " + bData.Height);
+
+            for (int i = 0; i < bData.Height; ++i)
+            {
+                for (int j = 0; j < bData.Width; ++j)
+                {
+                    byte* data = scan0 + i * bData.Stride + j * bitsPerPixel / 8;
+                    carr[j, i] = Color.FromArgb(255, data[2], data[1], data[0]);
+                }
+            }
+            b.UnlockBits(bData);
+
+            return carr;
+        }
+
+        public static byte GetBitsPerPixel(PixelFormat pixelFormat)
+        {
+            switch (pixelFormat)
+            {
+                case PixelFormat.Format24bppRgb:
+                    return 24;
+                case PixelFormat.Format32bppArgb:
+                case PixelFormat.Format32bppPArgb:
+                case PixelFormat.Format32bppRgb:
+                    return 32;
+                default:
+                    throw new ArgumentException("Only 24 and 32 bit images are supported");
+            }
+        }
+
+        public static unsafe void drawStrip(stripv2 s, Graphics g) // prints to the bitmap
+        {
+            Pen p = new Pen(s.c, (float) 3);
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+            g.DrawLine(p, s.left.X, s.left.Y, s.right.X, s.right.Y);
+            
+        }
 
         public static bool stripsMatch(stripv2 s1, stripv2 s2)
         {
@@ -111,14 +235,6 @@ namespace Player
         {
             int threshold = 1;
             return (Math.Abs(c1.R - c2.R) < threshold && Math.Abs(c1.G - c2.G) < threshold && Math.Abs(c1.B - c2.B) < threshold );
-        }
-
-        static public Bitmap printstrip(stripv2 s, Bitmap bp) // prints to the bitmap
-        {
-
-            //Console.Out.WriteLine("strip color is " + s.c + " location is left " + s.left + " right " + s.right);
-            for (int x = s.left.X; x <= s.right.X; x++) { bp.SetPixel(x, s.left.Y, s.c); }
-            return bp;
         }
 
         public static int[][] hashstrips(List<stripv2> strips)
@@ -192,7 +308,6 @@ namespace Player
                 ind++;
             }
 
-
             int[] markoff = new int[blobs.Count];
             for (int i = 0; i < markoff.Length; i++)
                 markoff[i] = i;
@@ -203,24 +318,25 @@ namespace Player
 
         public static List<stripv2> getUnconnectedStripsInRect(Bitmap bp, Rectangle rect) // speedier version used for creating strips to search through rather than for distinguishing blobs
         {
-            Stopwatch sw = new Stopwatch(); sw.Start();
+            Color[,] carr = getRectPixels(bp, rect);
+
             List<stripv2> strips = new List<stripv2>();
             stripv2 s = new stripv2();
 
-            for (int y = rect.Top; y <= rect.Bottom; y++)
+            for (int y = 0; y < rect.Height; y++)
             {
                 // start first strips
-                s = new stripv2(); s.left.Y = y; s.left.X = 0; s.c = bp.GetPixel(0, y); s.id = strips.Count;
-                for (int x = rect.Left; x <= rect.Right; x++)
+                s = new stripv2(); s.left.Y = y; s.left.X = 0; s.c = carr[0, y]; s.id = strips.Count;
+                for (int x = 0; x < rect.Width; x++)
                 {
                     // color change for current strip? end strip
-                    if (s.c != bp.GetPixel(x, y))
+                    if (s.c != carr[x, y])
                     {
                         s.right.X = x - 1; // last pixel of current strip was previous x value
                         s.right.Y = y;
                         strips.Add(s);
                         // set up next strip
-                        s = new stripv2(); s.left.Y = y; s.left.X = x; s.c = bp.GetPixel(x, y); s.id = strips.Count;
+                        s = new stripv2(); s.left.Y = y; s.left.X = x; s.c = carr[x, y]; s.id = strips.Count;
                     }
                 }
                 // close last strips
@@ -229,75 +345,41 @@ namespace Player
                 s.id = strips.Count;
                 strips.Add(s);
             }
-            sw.Stop(); viewBlobs.changeFPS("" + (1000.0 / sw.ElapsedMilliseconds));
-
-
-            return strips;
-        }
-
-        public static List<stripv2> getUnconnectedStrips(Bitmap bp) // speedier version used for creating strips to search through rather than for distinguishing blobs
-        {
-            Stopwatch sw = new Stopwatch(); sw.Start();
-            List<stripv2> strips = new List<stripv2>();
-            stripv2 s = new stripv2();
-
-            for (int y = 0; y < bp.Height; y++)
-            {
-                // start first strips
-                s = new stripv2(); s.left.Y = y; s.left.X = 0; s.c = bp.GetPixel(0, y); s.id = strips.Count;
-                for (int x = 0; x < bp.Width; x++)
-                {
-                    // color change for current strip? end strip
-                    if (s.c != bp.GetPixel(x, y))
-                    {
-                        s.right.X = x - 1; // last pixel of current strip was previous x value
-                        s.right.Y = y;
-                        strips.Add(s);
-                        // set up next strip
-                        s = new stripv2(); s.left.Y = y; s.left.X = x; s.c = bp.GetPixel(x, y); s.id = strips.Count;
-                    }
-                }
-                // close last strips
-                s.right.X = bp.Width - 1; // last pixel of current strip was previous x value 
-                s.right.Y = y;
-                s.id = strips.Count;
-                strips.Add(s);
-            }
-            sw.Stop(); viewBlobs.changeFPS("" + (1000.0 / sw.ElapsedMilliseconds)); 
-            
 
             return strips;
         }
 
         public static List<stripv2> getstripsInRect(Bitmap bp, Rectangle rect)
         {
+            Color[,] carr = getRectPixels(bp, rect);
+
             List<stripv2> strips = new List<stripv2>();
             stripv2[] aboveList = new stripv2[bp.Width];
             stripv2[] curList = new stripv2[bp.Width];
             stripv2 s = new stripv2();
             bool onnewstrip = true;
 
-            for (int y = rect.Top; y <= rect.Bottom; y++)
+            for (int y = 0; y < rect.Height; y++)
             {
                 // start first strips
-                s = new stripv2(); s.left.Y = y; s.left.X = rect.Left; s.c = bp.GetPixel(rect.Left, y); s.id = strips.Count;
+                s = new stripv2(); s.left.Y = y; s.left.X = 0; s.c = carr[0, y]; s.id = strips.Count;
                 onnewstrip = true;
-                for (int x = rect.Left; x <= rect.Right; x++)
+                for (int x = 0; x < rect.Width; x++)
                 {
                     // color change for current strip? end strip
-                    if (s.c != bp.GetPixel(x, y))
+                    if (s.c != carr[x, y])
                     {
                         s.right.X = x - 1; // last pixel of current strip was previous x value
                         s.right.Y = y;
                         strips.Add(s);
                         // set up next strip
-                        s = new stripv2(); s.left.Y = y; s.left.X = x; s.c = bp.GetPixel(x, y); s.id = strips.Count;
+                        s = new stripv2(); s.left.Y = y; s.left.X = x; s.c = carr[x, y]; s.id = strips.Count;
                     }
                     curList[x] = s;
-                    
-                    if (x > rect.Left && curList[x - 1].c != curList[x].c) onnewstrip = true;
-                    if (x > rect.Left && y > rect.Top && aboveList[x - 1].c != aboveList[x].c) onnewstrip = true;
-                    if (y > rect.Top && onnewstrip && (s.c == aboveList[x].c))
+
+                    if (x > 0 && curList[x - 1].c != curList[x].c) onnewstrip = true;
+                    if (x > 0 && y > 0 && aboveList[x - 1].c != aboveList[x].c) onnewstrip = true;
+                    if (y > 0 && onnewstrip && (s.c == aboveList[x].c))
                     {
                         aboveList[x].connectedBelow.Add(s);
                         onnewstrip = false;
@@ -316,6 +398,9 @@ namespace Player
 
         public static List<stripv2> getstrips(Bitmap bp)
         {
+
+            Color[,] carr = getAllPixels(bp);
+
             List<stripv2> strips = new List<stripv2>();
             stripv2[] aboveList = new stripv2[bp.Width];
             stripv2[] curList = new stripv2[bp.Width];
@@ -325,18 +410,18 @@ namespace Player
             for (int y = 0; y < bp.Height; y++)
             {
                 // start first strips
-                s = new stripv2(); s.left.Y = y; s.left.X = 0; s.c = bp.GetPixel(0,y); s.id = strips.Count;
+                s = new stripv2(); s.left.Y = y; s.left.X = 0; s.c = carr[0,y]; s.id = strips.Count;
                 onnewstrip = true;
                 for (int x = 0; x < bp.Width; x++)
                 {
                     // color change for current strip? end strip
-                    if (s.c != bp.GetPixel(x,y))
+                    if (s.c != carr[x,y])
                     {
                         s.right.X = x - 1; // last pixel of current strip was previous x value
                         s.right.Y = y;
                         strips.Add(s);
                         // set up next strip
-                        s = new stripv2(); s.left.Y = y; s.left.X = x; s.c = bp.GetPixel(x, y); s.id = strips.Count;
+                        s = new stripv2(); s.left.Y = y; s.left.X = x; s.c = carr[x,y]; s.id = strips.Count;
                     }
                     curList[x] = s;
 

@@ -17,8 +17,12 @@ namespace Player
         List<stripv2> mariostrips;
         Bitmap mario;
         Color mariobg;
+        gameObject mariogo;
         public static string fps = "";
-
+        public static IntPtr vbWindow;
+        public static bool updating;
+        public bool first;
+        public Rectangle rect;
         public viewBlobs()
         {
             Program.usingpic = false;
@@ -26,72 +30,31 @@ namespace Player
             Program.updateScreenshot();
             bp = new Bitmap(Program.screenBMP.Width, Program.screenBMP.Height);
 
-            // this example will show the program finding mario on screen to do this we must know all of marios blobs
-            // a picture of a small mario facing right is included in resources
-            // the light blue bits of the background have to be removed here. I don't know a good fix for this yet.
-            // searching for mario will happen in updateBlobImage()
-            mario = (Bitmap)Player.Properties.Resources.mariosmall.Clone();
-            //mario = new Bitmap("C:\\Users\\Chris\\Downloads\\jnes_1_1_1\\screenshots\\mariosmall.bmp");
-            mariostrips = stripBlob.getUnconnectedStrips(mario); // we assume we already have used blobs to find a mario, so now we don't need the connected strips. (unconnected algo runs faster)
-            mariobg = Color.FromArgb(255, 168, 255, 255);
-            /*
-            int index = 0;
-            while (index < mariostrips.Count)
-            {
-                if (mariostrips[index].c == mariobg)
-                    mariostrips.RemoveAt(index);
-                index++;
-            }
-             */
-            t = new System.Timers.Timer { Enabled = true, Interval = 10}; 
+            //mario = (Bitmap)Player.Properties.Resources.mariosmall.Clone();
+            mariogo = new gameObject(Player.Properties.Resources.mariosmall, Player.Properties.Resources.mariosmall.GetPixel(0, 0));
+            vbWindow = this.Handle;
+            updating = false;
+            first = true;
+            t = new System.Timers.Timer { Enabled = true, Interval = 1};
             t.Elapsed += delegate { updateBlobImage(); };
         }
 
         private void pictureBox1_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
         {
-            if (!Program.usingpic)
-            {
-                g = e.Graphics;
-                g.ScaleTransform(3, 3);
-                g.DrawImage(bp, 0, 0);
-            }
+            g = e.Graphics;
+            Program.updateScreenshot();
+            //g.DrawImage(Program.screenBMP, 0, 0);
+            //Stopwatch sw = new Stopwatch(); sw.Start();
+            Rectangle rect = mariogo.keyblobInrect(Program.screenBMP, new Rectangle(0, 0, Program.screenBMP.Width, Program.screenBMP.Height));
+            //sw.Stop(); changeFPS("" + (1000.0 / sw.ElapsedMilliseconds));
+            g.DrawImage(Program.screenBMP, 0, 0);
+            g.DrawRectangle(new Pen(Color.Orange, 3), rect);
         }
 
         public void updateBlobImage()
         {
-            if (!Program.usingpic)
-            {
-
-                Program.updateScreenshot();
-                while (Program.usingpic) ;
-                Program.usingpic = true;
-
-                c = Graphics.FromImage(bp);
-                c.Clear(Color.White);
-
-                List<stripv2> screenStrips = stripBlob.getUnconnectedStrips(Program.screenBMP);
-
-                foreach (stripv2 s in screenStrips)
-                    bp = stripBlob.printstrip(s, bp);
-
-                /*
-                List<stripv2> screenStrips = stripBlob.getUnconnectedStrips(Program.screenBMP);
-                int[][] screenStripsHashTable = stripBlob.hashstrips(screenStrips);
-
-                List<stripv2> curStripsOnScreen = new List<stripv2>();
-                List<stripv2> screenMario = new List<stripv2>();  // need a list of strips of mario from the screen because we need to know where mario is on screen.
-                foreach (stripv2 m in mariostrips)
-                {
-                    foreach (stripv2 n in stripBlob.stripInSetOfStrips(m, screenStrips, screenStripsHashTable))
-                        bp = stripBlob.printstrip(n, bp);
-                }
-                // draw those strips to the screen
-                */     
-
-                Program.usingpic = false;
-                this.pictureBox1.Invalidate();
-            }
-            
+           
+                pictureBox1.Invalidate(); 
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
@@ -110,7 +73,7 @@ namespace Player
 
         }
         
-        public static void AppendTextBox(string value)
+        public void AppendTextBox(string value)
         {
             if (textBox1.InvokeRequired)
             {
@@ -118,9 +81,10 @@ namespace Player
                 return;
             }
             textBox1.Text = fps;
+         
         }
 
-        public static void changeFPS(string newfps) 
+        public void changeFPS(string newfps) 
         {
             fps = newfps;
             AppendTextBox(fps);
