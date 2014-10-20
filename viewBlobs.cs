@@ -52,6 +52,7 @@ namespace Player
         }
 
         public void updateBlobImage()
+
         {
            
                 pictureBox1.Invalidate(); 

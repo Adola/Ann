@@ -80,6 +80,10 @@ namespace Player
             Application.Run(new MainForm());
              
 
+            //String[] sss = new String[1]; sss[0] = "C:\\Users\\Chris\\Downloads\\jnes_1_1_1\\4230.png";
+            //spriteCutter.cutSpriteSheet(sss, true);
+
+
             /*
             Bitmap mario = new Bitmap("C:\\Users\\Chris\\Downloads\\jnes_1_1_1\\screenshots\\face2.bmp");
             //meObject mgo = new gameObject(mario, mario.GetPixel(0, 0));

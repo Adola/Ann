@@ -39,7 +39,7 @@ namespace Player
             strips = new List<stripv2>();
             parent = new stripv2();
             numPixels = 0;
-            l = 1930; r = -1; t =  1090; b = -1; // will difine smallest rectangle to confine the blob. left, right(x values) and top, bottom(y vales)
+            l = 0xFFFFFFF; r = - 0xFFFFFFF; t = 0xFFFFFFF; b = - 0xFFFFFFF; // will difine smallest rectangle to confine the blob. left, right(x values) and top, bottom(y vales)
         }
     }
 
@@ -63,6 +63,20 @@ namespace Player
         {
             Graphics d = Graphics.FromImage(dest);
             d.DrawImage(source, 0, 0);
+        }
+
+
+        public static void setBlobRectangle(blobv2 blob)
+        {
+            foreach(stripv2 s in blob.strips) 
+            {
+                if (s.left.X < blob.l) blob.l = s.left.X;
+                if (s.right.X > blob.r) blob.r = s.right.X;
+
+                if (s.left.Y < blob.t) blob.t = s.left.Y;
+                if (s.left.Y > blob.b) blob.b = s.left.Y;
+            }
+
         }
 
         public static List<stripv2> getUnconnectedStrips(Bitmap bp) // speedier version used for creating strips to search through rather than for distinguishing blobs
@@ -123,7 +137,7 @@ namespace Player
 
         public unsafe static Color[,] getRectPixels(Bitmap b, Rectangle rect)
         {
-            Color[,] carr = new Color[b.Width, b.Height];
+            Color[,] carr = new Color[rect.Width, rect.Height];
             BitmapData bData = b.LockBits(rect, ImageLockMode.ReadWrite, b.PixelFormat);
             byte bitsPerPixel = GetBitsPerPixel(b.PixelFormat);
             int size = bData.Stride * bData.Height;
