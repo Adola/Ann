@@ -76,6 +76,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Release\AForge.Video.DirectShow.dll</HintPath>
     </Reference>
+    <Reference Include="Fann.Net">
+      <HintPath>..\..\..\..\..\Program Files (x86)\FANN\Fann.Net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
@@ -86,7 +89,6 @@
   <ItemGroup>
     <Compile Include="blob Example.cs" />
     <Compile Include="Controls.cs" />
-    <Compile Include="gameObject.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -107,6 +109,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="tracking.cs" />
     <Compile Include="viewBlobs.cs">
       <SubType>Form</SubType>
     </Compile>

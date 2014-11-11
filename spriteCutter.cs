@@ -10,8 +10,36 @@ namespace Player
     {
         static Color uniqueColor = Color.FromArgb(255, 193, 107, 255);  // a purple color, if the background is this color this program will fail
 
+        public static void cutSpriteSheetUniform(String imagePaths, int w, int h, Boolean save)
+        {
+                Bitmap ss = new Bitmap(imagePaths);
+                Bitmap sprite = new Bitmap(w, h);
+                int num = 0;
+                for (int i = 0; i < ss.Width; i+=w)
+                {
+                    for (int j = 0; j < ss.Height; j+=h)
+                    {
+                        // each tile -------------------
+                        for(int k = 0; k < w; k++)
+                        {
+                            for (int l = 0; l < h; l++)
+                            {
+                                sprite.SetPixel(k, l, ss.GetPixel(i+k, j+l));
+                            }
+                        }
+                        // save tile
+                        sprite.Save("C:\\Users\\Chris\\Downloads\\sprites\\" + num + ".bmp");
+                        num++;
+                        // -----------------------------
+                    }
+                }
+        }
+
         public static void cutSpriteSheet(String[] imagePaths, Boolean save) // !!! Must be a bitmap image, and must manually remove all extra things on sprite sheet (text etc) !!!
         {
+            /*
+             * 
+             * 
             for (int i = 0; i < imagePaths.Length; i++)
             {
                 Bitmap ss = new Bitmap(imagePaths[i]);
@@ -59,6 +87,9 @@ namespace Player
                     }
                 }
             }
+             * 
+             * 
+             */
         }
     }
 }

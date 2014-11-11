@@ -42,22 +42,21 @@ namespace Player
         public static void updateScreenshot()
         {
             g = Graphics.FromImage(screenBMP);
-            stripBlob.Getscreen(g, 256, 224, emuRect.Left, emuRect.Top);
-            
+            //stripBlob.Getscreen(g, 256, 224, emuRect.Left, emuRect.Top);
+            g.CopyFromScreen(emuRect.Left, emuRect.Top, 0, 0, new Size(256, 224));  // !!! hardcoded to size of NES/SNES game !!! 
         }
 
         public static void setActiveScreen()
         {
-            SetForegroundWindow(proc.MainWindowHandle); // ! DOES NOT WORK IF EMULATOR HAS BEEN MINIMIZED !
+            SetForegroundWindow(proc.MainWindowHandle); // !!! DOES NOT WORK IF EMULATOR HAS BEEN MINIMIZED !!!
             //GetWindowRect(ptr, ref emuRect);
-            emuRect.Left += 3; emuRect.Top += 45;
+            emuRect.Left += 3; emuRect.Top += 45; // !!! hardcoded to romove the frame around Jnes !!!
         }
 
         [STAThread]
         static void Main()
         {
             // initialize some variables
-
             
             EmulatorProcessName = "Jnes";
             processes = Process.GetProcessesByName(EmulatorProcessName);
@@ -76,19 +75,8 @@ namespace Player
 
             //Form tc = new testcontrols(); tc.Visible = true;
             Form vb = new viewBlobs(); vb.Visible = true;
-
-            Application.Run(new MainForm());
              
-
-            //String[] sss = new String[1]; sss[0] = "C:\\Users\\Chris\\Downloads\\jnes_1_1_1\\4230.png";
-            //spriteCutter.cutSpriteSheet(sss, true);
-
-
-            /*
-            Bitmap mario = new Bitmap("C:\\Users\\Chris\\Downloads\\jnes_1_1_1\\screenshots\\face2.bmp");
-            //meObject mgo = new gameObject(mario, mario.GetPixel(0, 0));
-            stripBlob.getRectPixels(mario, new Rectangle(2, 1, 3, 3));
-             */
+            Application.Run(new MainForm());
         }
     }
 }
